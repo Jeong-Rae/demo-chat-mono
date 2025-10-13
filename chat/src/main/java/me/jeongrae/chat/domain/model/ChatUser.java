@@ -2,6 +2,7 @@ package me.jeongrae.chat.domain.model;
 
 import me.jeongrae.chat.common.guard.Guard;
 import java.time.Instant;
+import me.jeongrae.chat.domain.shared.error.ErrorTemplate;
 
 import me.jeongrae.chat.domain.shared.model.Entity;
 import lombok.Getter;
@@ -15,8 +16,8 @@ public class ChatUser extends Entity<UserId> {
     private final Instant joinedAt;
 
     private ChatUser(UserId userId, String username) {
-        super(Guard.notNull(userId, "userId는 null일 수 없습니다."));
-        this.username = Guard.notBlank(username, "username은 비어있을 수 없습니다.");
+        super(Guard.notNull(userId, ErrorTemplate.VALUE_CANNOT_BE_NULL.format("userId")));
+        this.username = Guard.notBlank(username, ErrorTemplate.VALUE_CANNOT_BE_EMPTY.format("username"));
         this.joinedAt = Instant.now();
     }
 

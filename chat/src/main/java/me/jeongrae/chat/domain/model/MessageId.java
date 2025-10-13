@@ -1,7 +1,7 @@
 package me.jeongrae.chat.domain.model;
 
-import lombok.EqualsAndHashCode;
 import me.jeongrae.chat.common.guard.Guard;
+import me.jeongrae.chat.domain.shared.error.ErrorTemplate;
 
 import java.util.UUID;
 
@@ -9,12 +9,9 @@ import java.util.UUID;
  * 개별 메시지의 유니크 ID.
  * UUID 기반으로 생성됨.
  */
-@EqualsAndHashCode
-public final class MessageId {
-    private final String value;
-
-    private MessageId(String value) {
-        this.value = Guard.notBlank(value, "MessageId 값은 비어있을 수 없습니다.");
+public record MessageId(String value) {
+    public MessageId {
+        Guard.notBlank(value, ErrorTemplate.VALUE_CANNOT_BE_EMPTY.format("MessageId"));
     }
 
     public static MessageId of(String value) {
@@ -23,14 +20,5 @@ public final class MessageId {
 
     public static MessageId generate() {
         return new MessageId(UUID.randomUUID().toString());
-    }
-
-    public String value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value;
     }
 }
