@@ -319,85 +319,85 @@ public final class Guard {
     }
 
     /**
-     * 두 숫자가 같은지 확인합니다.
+     * 두 객체가 같은지 확인합니다.
      *
-     * @param vlaue 확인할 숫자
-     * @param expected 예상 숫자
-     * @param <T> 숫자 타입
-     * @return 같은 숫자
-     * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
+     * @param value 확인할 객체
+     * @param expected 예상 객체
+     * @param <T> 객체 타입
+     * @return 같은 객체
+     * @throws IllegalArgumentException 두 객체가 같지 않은 경우
      */
-    public static <T extends Number & Comparable<T>> T equals(T value, T expected) {
-        return GuardNumbers.equals(value, expected, () -> "숫자 " + value + "는 " + expected + "와 같아야 합니다.");
+    public static <T> T equals(T value, T expected) {
+        return GuardInternal.equals(value, expected, () -> "객체 " + value + "는 " + expected + "와 같아야 합니다.");
     }
 
     /**
-     * 두 숫자가 같은지 확인합니다. (지연 메시지)
+     * 두 객체가 같은지 확인합니다. (지연 메시지)
      *
-     * @param vlaue 확인할 숫자
-     * @param expected 예상 숫자
+     * @param value 확인할 객체
+     * @param expected 예상 객체
      * @param message 예외 메시지 공급자
-     * @param <T> 숫자 타입
-     * @return 같은 숫자
-     * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
+     * @param <T> 객체 타입
+     * @return 같은 객체
+     * @throws IllegalArgumentException 두 객체가 같지 않은 경우
      */
-    public static <T extends Number & Comparable<T>> T equals(T value, T expected, Supplier<String> message) {
-        return GuardNumbers.equals(value, expected, message);
+    public static <T> T equals(T value, T expected, Supplier<String> message) {
+        return GuardInternal.equals(value, expected, message);
     }
 
     /**
-     * 두 숫자가 같은지 확인합니다.
+     * 두 객체가 같은지 확인합니다.
      *
-     * @param value 확인할 숫자
-     * @param expected 예상 숫자
+     * @param value 확인할 객체
+     * @param expected 예상 객체
      * @param message 예외 메시지
-     * @param <T> 숫자 타입
-     * @return 같은 숫자
-     * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
+     * @param <T> 객체 타입
+     * @return 같은 객체
+     * @throws IllegalArgumentException 두 객체가 같지 않은 경우
      */
-    public static <T extends Number & Comparable<T>> T equals(T value, T expected, String message) {
-        return GuardNumbers.equals(value, expected, message);
+    public static <T> T equals(T value, T expected, String message) {
+        return GuardInternal.equals(value, expected, message);
     }
 
     /**
-     * 두 숫자가 다른지 확인합니다.
+     * 두 객체가 다른지 확인합니다.
      *
-     * @param vlaue 확인할 숫자
-     * @param unexpected 예상하지 않은 숫자
-     * @param <T> 숫자 타입
-     * @return 다른 숫자
-     * @throws IllegalArgumentException 두 숫자가 같은 경우
+     * @param value 확인할 객체
+     * @param unexpected 예상하지 않은 객체
+     * @param <T> 객체 타입
+     * @return 다른 객체
+     * @throws IllegalArgumentException 두 객체가 같은 경우
      */
-    public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected) {
-        return GuardNumbers.notEquals(value, unexpected, () -> "숫자 " + value + "는 " + unexpected + "와 달라야 합니다.");
+    public static <T> T notEquals(T value, T unexpected) {
+        return GuardInternal.notEquals(value, unexpected, () -> "객체 " + value + "는 " + unexpected + "와 달라야 합니다.");
     }
 
     /**
-     * 두 숫자가 다른지 확인합니다. (지연 메시지)
+     * 두 객체가 다른지 확인합니다. (지연 메시지)
      *
-     * @param vlaue 확인할 숫자
-     * @param unexpected 예상하지 않은 숫자
+     * @param value 확인할 객체
+     * @param unexpected 예상하지 않은 객체
      * @param message 예외 메시지 공급자
-     * @param <T> 숫자 타입
-     * @return 다른 숫자
-     * @throws IllegalArgumentException 두 숫자가 같은 경우
+     * @param <T> 객체 타입
+     * @return 다른 객체
+     * @throws IllegalArgumentException 두 객체가 같은 경우
      */
-    public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, Supplier<String> message) {
-        return GuardNumbers.notEquals(value, unexpected, message);
+    public static <T> T notEquals(T value, T unexpected, Supplier<String> message) {
+        return GuardInternal.notEquals(value, unexpected, message);
     }
 
     /**
-     * 두 숫자가 다른지 확인합니다.
+     * 두 객체가 다른지 확인합니다.
      *
-     * @param value 확인할 숫자
-     * @param unexpected 예상하지 않은 숫자
+     * @param value 확인할 객체
+     * @param unexpected 예상하지 않은 객체
      * @param message 예외 메시지
-     * @param <T> 숫자 타입
-     * @return 다른 숫자
-     * @throws IllegalArgumentException 두 숫자가 같은 경우
+     * @param <T> 객체 타입
+     * @return 다른 객체
+     * @throws IllegalArgumentException 두 객체가 같은 경우
      */
-    public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, String message) {
-        return GuardNumbers.notEquals(value, unexpected, message);
+    public static <T> T notEquals(T value, T unexpected, String message) {
+        return GuardInternal.notEquals(value, unexpected, message);
     }
 
     /**

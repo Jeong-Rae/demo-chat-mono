@@ -10,6 +10,8 @@ import java.util.function.Supplier;
 public final class GuardInternal {
 
     private static final String MUST_NOT_BE_NULL = "null일 수 없습니다.";
+    private static final String OBJECTS_MUST_BE_EQUAL = "두 객체는 같아야 합니다.";
+    private static final String OBJECTS_MUST_NOT_BE_EQUAL = "두 객체는 달라야 합니다.";
 
     private GuardInternal() { /* no-op */ }
 
@@ -55,5 +57,71 @@ public final class GuardInternal {
      */
     public static <T> T notNull(T value, String message) {
         return notNull(value, () -> message);
+    }
+
+    /**
+     * 두 객체가 같은지 확인합니다.
+     *
+     * @param value 확인할 객체
+     * @param expected 예상 객체
+     * @param message 예외 메시지 공급자
+     * @param <T> 객체 타입
+     * @return 같은 객체
+     * @throws IllegalArgumentException 두 객체가 같지 않은 경우
+     */
+    public static <T> T equals(T value, T expected, Supplier<String> message) {
+        return equals(value, expected, lazy(message, OBJECTS_MUST_BE_EQUAL));
+    }
+
+    /**
+     * 두 객체가 같은지 확인합니다.
+     *
+     * @param value 확인할 객체
+     * @param expected 예상 객체
+     * @param message 예외 메시지
+     * @param <T> 객체 타입
+     * @return 같은 객체
+     * @throws IllegalArgumentException 두 객체가 같지 않은 경우
+     */
+    public static <T> T equals(T value, T expected, String message) {
+        notNull(value, message);
+        notNull(expected, message);
+        if (!value.equals(expected)) {
+            throw new IllegalArgumentException(message);
+        }
+        return value;
+    }
+
+    /**
+     * 두 객체가 다른지 확인합니다.
+     *
+     * @param value 확인할 객체
+     * @param unexpected 예상하지 않은 객체
+     * @param message 예외 메시지 공급자
+     * @param <T> 객체 타입
+     * @return 다른 객체
+     * @throws IllegalArgumentException 두 객체가 같은 경우
+     */
+    public static <T> T notEquals(T value, T unexpected, Supplier<String> message) {
+        return notEquals(value, unexpected, lazy(message, OBJECTS_MUST_NOT_BE_EQUAL));
+    }
+
+    /**
+     * 두 객체가 다른지 확인합니다.
+     *
+     * @param value 확인할 객체
+     * @param unexpected 예상하지 않은 객체
+     * @param message 예외 메시지
+     * @param <T> 객체 타입
+     * @return 다른 객체
+     * @throws IllegalArgumentException 두 객체가 같은 경우
+     */
+    public static <T> T notEquals(T value, T unexpected, String message) {
+        notNull(value, message);
+        notNull(unexpected, message);
+        if (value.equals(unexpected)) {
+            throw new IllegalArgumentException(message);
+        }
+        return value;
     }
 }

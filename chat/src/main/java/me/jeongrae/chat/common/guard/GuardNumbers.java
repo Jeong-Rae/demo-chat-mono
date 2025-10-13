@@ -11,8 +11,6 @@ public final class GuardNumbers {
 
     private static final String NUMBER_MUST_BE_IN_RANGE = "숫자는 지정된 범위 내에 있어야 합니다.";
     private static final String NUMBER_MUST_BE_POSITIVE = "숫자는 양수여야 합니다.";
-    private static final String NUMBERS_MUST_BE_EQUAL = "두 숫자는 같아야 합니다.";
-    private static final String NUMBERS_MUST_NOT_BE_EQUAL = "두 숫자는 달라야 합니다.";
     private static final String NUMBER_MUST_BE_GREATER_THAN_OR_EQUAL_TO_MIN = "숫자는 최소값 이상이어야 합니다.";
     private static final String NUMBER_MUST_BE_LESS_THAN_OR_EQUAL_TO_MAX = "숫자는 최대값 이하이어야 합니다.";
 
@@ -78,72 +76,6 @@ public final class GuardNumbers {
     public static <T extends Number & Comparable<T>> T positive(T value, String message) {
         GuardInternal.notNull(value, message);
         if (value.doubleValue() <= 0) {
-            throw new IllegalArgumentException(message);
-        }
-        return value;
-    }
-
-    /**
-     * 두 숫자가 같은지 확인합니다.
-     *
-     * @param value 확인할 숫자
-     * @param expected 예상 숫자
-     * @param message 예외 메시지 공급자
-     * @param <T> 숫자 타입
-     * @return 같은 숫자
-     * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
-     */
-    public static <T extends Number & Comparable<T>> T equals(T value, T expected, Supplier<String> message) {
-        return equals(value, expected, GuardInternal.lazy(message, NUMBERS_MUST_BE_EQUAL));
-    }
-
-    /**
-     * 두 숫자가 같은지 확인합니다.
-     *
-     * @param value 확인할 숫자
-     * @param expected 예상 숫자
-     * @param message 예외 메시지
-     * @param <T> 숫자 타입
-     * @return 같은 숫자
-     * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
-     */
-    public static <T extends Number & Comparable<T>> T equals(T value, T expected, String message) {
-        GuardInternal.notNull(value, message);
-        GuardInternal.notNull(expected, message);
-        if (value.compareTo(expected) != 0) {
-            throw new IllegalArgumentException(message);
-        }
-        return value;
-    }
-
-    /**
-     * 두 숫자가 다른지 확인합니다.
-     *
-     * @param value 확인할 숫자
-     * @param unexpected 예상하지 않은 숫자
-     * @param message 예외 메시지 공급자
-     * @param <T> 숫자 타입
-     * @return 다른 숫자
-     * @throws IllegalArgumentException 두 숫자가 같은 경우
-     */
-    public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, Supplier<String> message) {
-        return notEquals(value, unexpected, GuardInternal.lazy(message, NUMBERS_MUST_NOT_BE_EQUAL));
-    }
-
-    /**
-     * 두 숫자가 다른지 확인합니다.
-     *
-     * @param value 확인할 숫자
-     * @param unexpected 예상하지 않은 숫자
-     * @param message 예외 메시지
-     * @param <T> 숫자 타입
-     * @return 다른 숫자
-     * @throws IllegalArgumentException 두 숫자가 같은 경우
-     */
-    public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, String message) {
-        GuardInternal.notNull(value, message);
-        GuardInternal.notNull(unexpected, message);
-        if (value.compareTo(unexpected) == 0) {
             throw new IllegalArgumentException(message);
         }
         return value;
