@@ -23,9 +23,22 @@ public final class GuardCollections {
      * @throws IllegalArgumentException 컬렉션이 null이거나 비어있는 경우
      */
     public static <T extends Collection<?>> T notEmpty(T collection, Supplier<String> message) {
-        GuardInternal.notNull(collection, () -> "컬렉션은 null일 수 없습니다.");
+        return notEmpty(collection, GuardInternal.lazy(message, COLLECTION_MUST_NOT_BE_EMPTY));
+    }
+
+    /**
+     * 컬렉션이 null이 아니고 비어있지 않은지 확인합니다.
+     *
+     * @param collection 확인할 컬렉션
+     * @param message 예외 메시지
+     * @param <T> 컬렉션 타입
+     * @return 비어있지 않은 컬렉션
+     * @throws IllegalArgumentException 컬렉션이 null이거나 비어있는 경우
+     */
+    public static <T extends Collection<?>> T notEmpty(T collection, String message) {
+        GuardInternal.notNull(collection, message);
         if (collection.isEmpty()) {
-            throw new IllegalArgumentException(GuardInternal.lazy(message, COLLECTION_MUST_NOT_BE_EMPTY));
+            throw new IllegalArgumentException(message);
         }
         return collection;
     }
@@ -40,10 +53,23 @@ public final class GuardCollections {
      * @throws IllegalArgumentException 컬렉션이 null 요소를 포함하는 경우
      */
     public static <T extends Collection<?>> T noNullElements(T collection, Supplier<String> message) {
-        GuardInternal.notNull(collection, () -> "컬렉션은 null일 수 없습니다.");
+        return noNullElements(collection, GuardInternal.lazy(message, COLLECTION_MUST_NOT_CONTAIN_NULL_ELEMENTS));
+    }
+
+    /**
+     * 컬렉션이 null 요소를 포함하지 않는지 확인합니다.
+     *
+     * @param collection 확인할 컬렉션
+     * @param message 예외 메시지
+     * @param <T> 컬렉션 타입
+     * @return null 요소를 포함하지 않는 컬렉션
+     * @throws IllegalArgumentException 컬렉션이 null 요소를 포함하는 경우
+     */
+    public static <T extends Collection<?>> T noNullElements(T collection, String message) {
+        GuardInternal.notNull(collection, message);
         for (Object element : collection) {
             if (element == null) {
-                throw new IllegalArgumentException(GuardInternal.lazy(message, COLLECTION_MUST_NOT_CONTAIN_NULL_ELEMENTS));
+                throw new IllegalArgumentException(message);
             }
         }
         return collection;

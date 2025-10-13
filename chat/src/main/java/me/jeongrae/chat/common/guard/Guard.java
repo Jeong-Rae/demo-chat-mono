@@ -53,6 +53,19 @@ public final class Guard {
     }
 
     /**
+     * 객체가 null이 아님을 확인합니다.
+     *
+     * @param value 확인할 객체
+     * @param message 예외 메시지
+     * @param <T> 객체 타입
+     * @return null이 아닌 객체
+     * @throws NullPointerException 객체가 null인 경우
+     */
+    public static <T> T notNull(T value, String message) {
+        return GuardInternal.notNull(value, message);
+    }
+
+    /**
      * 주어진 조건이 참인지 확인합니다.
      *
      * @param condition 확인할 조건
@@ -75,6 +88,17 @@ public final class Guard {
         if (!condition) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, REQUIREMENT_MUST_BE_TRUE));
         }
+    }
+
+    /**
+     * 주어진 조건이 참인지 확인합니다.
+     *
+     * @param condition 확인할 조건
+     * @param message 예외 메시지
+     * @throws IllegalArgumentException 조건이 거짓인 경우
+     */
+    public static void isTrue(boolean condition, String message) {
+        isTrue(condition, () -> message);
     }
 
     /**
@@ -101,6 +125,18 @@ public final class Guard {
     }
 
     /**
+     * 문자열이 null, 비어있거나 공백으로만 구성되지 않았는지 확인합니다.
+     *
+     * @param text 확인할 문자열
+     * @param message 예외 메시지
+     * @return 공백이 아닌 문자열
+     * @throws IllegalArgumentException 문자열이 공백인 경우
+     */
+    public static String notBlank(String text, String message) {
+        return GuardString.notBlank(text, message);
+    }
+
+    /**
      * {@link #notBlank(String)}의 별칭입니다.
      */
     public static String hasText(String text) {
@@ -111,6 +147,13 @@ public final class Guard {
      * {@link #notBlank(String, Supplier)}의 별칭입니다.
      */
     public static String hasText(String text, Supplier<String> message) {
+        return GuardString.hasText(text, message);
+    }
+
+    /**
+     * {@link #notBlank(String, String)}의 별칭입니다.
+     */
+    public static String hasText(String text, String message) {
         return GuardString.hasText(text, message);
     }
 
@@ -142,6 +185,20 @@ public final class Guard {
     }
 
     /**
+     * 문자열의 길이가 지정된 범위 내에 있는지 확인합니다.
+     *
+     * @param text 확인할 문자열
+     * @param minLength 최소 길이
+     * @param maxLength 최대 길이
+     * @param message 예외 메시지
+     * @return 길이 범위 내의 문자열
+     * @throws IllegalArgumentException 문자열 길이가 범위를 벗어난 경우
+     */
+    public static String lengthBetween(String text, int minLength, int maxLength, String message) {
+        return GuardString.lengthBetween(text, minLength, maxLength, message);
+    }
+
+    /**
      * 문자열이 주어진 정규식과 일치하는지 확인합니다.
      *
      * @param text 확인할 문자열
@@ -163,6 +220,19 @@ public final class Guard {
      * @throws IllegalArgumentException 문자열이 정규식과 일치하지 않는 경우
      */
     public static String matches(String text, String regex, Supplier<String> message) {
+        return GuardString.matches(text, regex, message);
+    }
+
+    /**
+     * 문자열이 주어진 정규식과 일치하는지 확인합니다.
+     *
+     * @param text 확인할 문자열
+     * @param regex 정규식
+     * @param message 예외 메시지
+     * @return 정규식과 일치하는 문자열
+     * @throws IllegalArgumentException 문자열이 정규식과 일치하지 않는 경우
+     */
+    public static String matches(String text, String regex, String message) {
         return GuardString.matches(text, regex, message);
     }
 
@@ -196,6 +266,21 @@ public final class Guard {
     }
 
     /**
+     * 숫자가 지정된 범위 내에 있는지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param min 최소값
+     * @param max 최대값
+     * @param message 예외 메시지
+     * @param <T> 숫자 타입
+     * @return 범위 내의 숫자
+     * @throws IllegalArgumentException 숫자가 범위 밖에 있는 경우
+     */
+    public static <T extends Number & Comparable<T>> T inRange(T value, T min, T max, String message) {
+        return GuardNumbers.inRange(value, min, max, message);
+    }
+
+    /**
      * 숫자가 양수인지 확인합니다.
      *
      * @param value 확인할 숫자
@@ -217,6 +302,19 @@ public final class Guard {
      * @throws IllegalArgumentException 숫자가 양수가 아닌 경우
      */
     public static <T extends Number & Comparable<T>> T positive(T value, Supplier<String> message) {
+        return GuardNumbers.positive(value, message);
+    }
+
+    /**
+     * 숫자가 양수인지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param message 예외 메시지
+     * @param <T> 숫자 타입
+     * @return 양수인 숫자
+     * @throws IllegalArgumentException 숫자가 양수가 아닌 경우
+     */
+    public static <T extends Number & Comparable<T>> T positive(T value, String message) {
         return GuardNumbers.positive(value, message);
     }
 
@@ -248,6 +346,20 @@ public final class Guard {
     }
 
     /**
+     * 두 숫자가 같은지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param expected 예상 숫자
+     * @param message 예외 메시지
+     * @param <T> 숫자 타입
+     * @return 같은 숫자
+     * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
+     */
+    public static <T extends Number & Comparable<T>> T equals(T value, T expected, String message) {
+        return GuardNumbers.equals(value, expected, message);
+    }
+
+    /**
      * 두 숫자가 다른지 확인합니다.
      *
      * @param vlaue 확인할 숫자
@@ -271,6 +383,20 @@ public final class Guard {
      * @throws IllegalArgumentException 두 숫자가 같은 경우
      */
     public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, Supplier<String> message) {
+        return GuardNumbers.notEquals(value, unexpected, message);
+    }
+
+    /**
+     * 두 숫자가 다른지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param unexpected 예상하지 않은 숫자
+     * @param message 예외 메시지
+     * @param <T> 숫자 타입
+     * @return 다른 숫자
+     * @throws IllegalArgumentException 두 숫자가 같은 경우
+     */
+    public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, String message) {
         return GuardNumbers.notEquals(value, unexpected, message);
     }
 
@@ -302,6 +428,20 @@ public final class Guard {
     }
 
     /**
+     * 숫자가 최소값 이상인지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param min 최소값
+     * @param message 예외 메시지
+     * @param <T> 숫자 타입
+     * @return 최소값 이상의 숫자
+     * @throws IllegalArgumentException 숫자가 최소값 미만인 경우
+     */
+    public static <T extends Number & Comparable<T>> T min(T value, T min, String message) {
+        return GuardNumbers.min(value, min, message);
+    }
+
+    /**
      * 숫자가 최대값 이하인지 확인합니다.
      *
      * @param value 확인할 숫자
@@ -328,6 +468,19 @@ public final class Guard {
         return GuardNumbers.max(value, max, message);
     }
 
+    /**
+     * 숫자가 최대값 이하인지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param max 최대값
+     * @param message 예외 메시지
+     * @param <T> 숫자 타입
+     * @return 최대값 이하의 숫자
+     * @throws IllegalArgumentException 숫자가 최대값 초과인 경우
+     */
+    public static <T extends Number & Comparable<T>> T max(T value, T max, String message) {
+        return GuardNumbers.max(value, max, message);
+    }
 
     /**
      * 컬렉션이 null이 아니고 비어있지 않은지 확인합니다.
@@ -351,6 +504,19 @@ public final class Guard {
      * @throws IllegalArgumentException 컬렉션이 null이거나 비어있는 경우
      */
     public static <T extends Collection<?>> T notEmpty(T collection, Supplier<String> message) {
+        return GuardCollections.notEmpty(collection, message);
+    }
+
+    /**
+     * 컬렉션이 null이 아니고 비어있지 않은지 확인합니다.
+     *
+     * @param collection 확인할 컬렉션
+     * @param message 예외 메시지
+     * @param <T> 컬렉션 타입
+     * @return 비어있지 않은 컬렉션
+     * @throws IllegalArgumentException 컬렉션이 null이거나 비어있는 경우
+     */
+    public static <T extends Collection<?>> T notEmpty(T collection, String message) {
         return GuardCollections.notEmpty(collection, message);
     }
 
@@ -380,6 +546,19 @@ public final class Guard {
     }
 
     /**
+     * 컬렉션이 null 요소를 포함하지 않는지 확인합니다.
+     *
+     * @param collection 확인할 컬렉션
+     * @param message 예외 메시지
+     * @param <T> 컬렉션 타입
+     * @return null 요소를 포함하지 않는 컬렉션
+     * @throws IllegalArgumentException 컬렉션이 null 요소를 포함하는 경우
+     */
+    public static <T extends Collection<?>> T noNullElements(T collection, String message) {
+        return GuardCollections.noNullElements(collection, message);
+    }
+
+    /**
      * 특정 상태가 유효한지 확인합니다.
      *
      * @param valid 확인할 조건
@@ -398,6 +577,17 @@ public final class Guard {
      */
     public static void state(boolean valid, Supplier<String> message) {
         if (!valid) throw new IllegalStateException(GuardInternal.lazy(message, ILLEGAL_STATE));
+    }
+
+    /**
+     * 특정 상태가 유효한지 확인합니다.
+     *
+     * @param valid 확인할 조건
+     * @param message 예외 메시지
+     * @throws IllegalStateException 상태가 유효하지 않은 경우
+     */
+    public static void state(boolean valid, String message) {
+        state(valid, () -> message);
     }
 
     /**
@@ -422,6 +612,17 @@ public final class Guard {
     }
 
     /**
+     * 지원하지 않는 작업임을 나타내기 위해 {@link UnsupportedOperationException}을 발생시킵니다.
+     *
+     * @param message 예외 메시지
+     * @param <T> 반환 타입
+     * @return 반환되지 않음
+     */
+    public static <T> T unsupported(String message) {
+        return unsupported(() -> message);
+    }
+
+    /**
      * 실패를 나타내기 위해 {@link IllegalArgumentException}을 발생시킵니다.
      *
      * @param <T> 반환 타입
@@ -440,6 +641,17 @@ public final class Guard {
      */
     public static <T> T fail(Supplier<String> message) {
         throw new IllegalArgumentException(GuardInternal.lazy(message, FAILURE));
+    }
+
+    /**
+     * 실패를 나타내기 위해 {@link IllegalArgumentException}을 발생시킵니다.
+     *
+     * @param message 예외 메시지
+     * @param <T> 반환 타입
+     * @return 반환되지 않음
+     */
+    public static <T> T fail(String message) {
+        return fail(() -> message);
     }
 
     /**

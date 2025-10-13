@@ -43,4 +43,17 @@ public final class GuardInternal {
         }
         return value;
     }
+
+    /**
+     * 객체가 null이 아님을 확인합니다.
+     *
+     * @param value 확인할 객체
+     * @param message 예외 메시지
+     * @param <T> 객체 타입
+     * @return null이 아닌 객체
+     * @throws NullPointerException 객체가 null인 경우
+     */
+    public static <T> T notNull(T value, String message) {
+        return notNull(value, () -> message);
+    }
 }
