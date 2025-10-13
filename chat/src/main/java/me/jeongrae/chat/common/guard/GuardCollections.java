@@ -17,8 +17,8 @@ public final class GuardCollections {
      * 컬렉션이 null이 아니고 비어있지 않은지 확인합니다.
      *
      * @param collection 확인할 컬렉션
-     * @param message    예외 메시지 공급자
-     * @param <T>        컬렉션 타입
+     * @param message 예외 메시지 공급자
+     * @param <T> 컬렉션 타입
      * @return 비어있지 않은 컬렉션
      * @throws IllegalArgumentException 컬렉션이 null이거나 비어있는 경우
      */
@@ -34,8 +34,8 @@ public final class GuardCollections {
      * 컬렉션이 null 요소를 포함하지 않는지 확인합니다.
      *
      * @param collection 확인할 컬렉션
-     * @param message    예외 메시지 공급자
-     * @param <T>        컬렉션 타입
+     * @param message 예외 메시지 공급자
+     * @param <T> 컬렉션 타입
      * @return null 요소를 포함하지 않는 컬렉션
      * @throws IllegalArgumentException 컬렉션이 null 요소를 포함하는 경우
      */

@@ -39,10 +39,10 @@ public final class GuardString {
     /**
      * 문자열의 길이가 지정된 범위 내에 있는지 확인합니다.
      *
-     * @param text      확인할 문자열
+     * @param text 확인할 문자열
      * @param minLength 최소 길이
      * @param maxLength 최대 길이
-     * @param message   예외 메시지 공급자
+     * @param message 예외 메시지 공급자
      * @return 길이 범위 내의 문자열
      * @throws IllegalArgumentException 문자열 길이가 범위를 벗어난 경우
      */
@@ -58,8 +58,8 @@ public final class GuardString {
     /**
      * 문자열이 주어진 정규식과 일치하는지 확인합니다.
      *
-     * @param text    확인할 문자열
-     * @param regex   정규식
+     * @param text 확인할 문자열
+     * @param regex 정규식
      * @param message 예외 메시지 공급자
      * @return 정규식과 일치하는 문자열
      * @throws IllegalArgumentException 문자열이 정규식과 일치하지 않는 경우
