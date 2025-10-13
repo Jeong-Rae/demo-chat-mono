@@ -22,7 +22,7 @@ public abstract class Entity<ID> implements Identifiable<ID> {
     public ID id() {
         return id;
     }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
