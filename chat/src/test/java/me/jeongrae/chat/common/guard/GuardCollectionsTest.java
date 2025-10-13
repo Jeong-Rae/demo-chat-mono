@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import me.jeongrae.chat.common.guard.Guard;
-import static me.jeongrae.chat.common.guard.Guard.*;
 
 @DisplayName("GuardCollections 유틸리티 테스트")
 class GuardCollectionsTest {

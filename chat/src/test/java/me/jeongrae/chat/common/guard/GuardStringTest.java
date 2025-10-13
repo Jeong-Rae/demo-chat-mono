@@ -1,11 +1,9 @@
+package me.jeongrae.chat.common.guard;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Supplier;
-
 import static org.junit.jupiter.api.Assertions.*;
-import me.jeongrae.chat.common.guard.Guard;
-import static me.jeongrae.chat.common.guard.Guard.*;
 
 @DisplayName("GuardString 유틸리티 테스트")
 class GuardStringTest {
