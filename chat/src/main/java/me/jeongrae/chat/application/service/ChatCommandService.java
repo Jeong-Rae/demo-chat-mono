@@ -5,7 +5,7 @@ import me.jeongrae.chat.application.ChatUseCase;
 import me.jeongrae.chat.application.SendMessageCommand;
 import me.jeongrae.chat.application.port.ChatRoomRepository;
 import me.jeongrae.chat.application.port.ChatUserRepository;
-import me.jeongrae.chat.domain.model.*;
+import me.jeongrae.chat.domain.chat.model.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,12 +28,11 @@ public class ChatCommandService implements ChatUseCase {
     @Override
     public ChatRoom getOrCreateRoom(UserId user1, UserId user2) {
         RoomId roomId = RoomId.of(user1, user2);
-        return chatRoomRepository.findById(roomId)
-                .orElseGet(() -> {
-                    ChatRoom newRoom = ChatRoom.of(user1, user2);
-                    chatRoomRepository.save(newRoom);
-                    return newRoom;
-                });
+        return chatRoomRepository.findById(roomId).orElseGet(() -> {
+            ChatRoom newRoom = ChatRoom.of(user1, user2);
+            chatRoomRepository.save(newRoom);
+            return newRoom;
+        });
     }
 
     @Override
@@ -45,11 +44,8 @@ public class ChatCommandService implements ChatUseCase {
             throw new SecurityException("Sender is not a participant in this room");
         }
 
-        ChatMessage message = ChatMessage.of(
-                command.getRoomId(),
-                command.getSenderId(),
-                command.getContent()
-        );
+        ChatMessage message =
+                ChatMessage.of(command.getRoomId(), command.getSenderId(), command.getContent());
 
         room.addMessage(message);
         // In a real scenario, we would save the message and the room state.

@@ -1,9 +1,9 @@
 package me.jeongrae.chat.application;
 
 import lombok.Getter;
-import me.jeongrae.chat.domain.model.ChatText;
-import me.jeongrae.chat.domain.model.RoomId;
-import me.jeongrae.chat.domain.model.UserId;
+import me.jeongrae.chat.domain.chat.model.ChatText;
+import me.jeongrae.chat.domain.chat.model.RoomId;
+import me.jeongrae.chat.domain.chat.model.UserId;
 import org.springframework.util.Assert;
 
 @Getter

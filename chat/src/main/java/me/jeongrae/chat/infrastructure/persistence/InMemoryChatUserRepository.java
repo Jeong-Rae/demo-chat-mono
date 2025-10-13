@@ -1,8 +1,8 @@
 package me.jeongrae.chat.infrastructure.persistence;
 
 import me.jeongrae.chat.application.port.ChatUserRepository;
-import me.jeongrae.chat.domain.model.ChatUser;
-import me.jeongrae.chat.domain.model.UserId;
+import me.jeongrae.chat.domain.chat.model.ChatUser;
+import me.jeongrae.chat.domain.chat.model.UserId;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;

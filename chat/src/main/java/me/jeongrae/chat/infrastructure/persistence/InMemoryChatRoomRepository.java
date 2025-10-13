@@ -1,8 +1,8 @@
 package me.jeongrae.chat.infrastructure.persistence;
 
 import me.jeongrae.chat.application.port.ChatRoomRepository;
-import me.jeongrae.chat.domain.model.ChatRoom;
-import me.jeongrae.chat.domain.model.RoomId;
+import me.jeongrae.chat.domain.chat.model.ChatRoom;
+import me.jeongrae.chat.domain.chat.model.RoomId;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;

@@ -1,4 +1,4 @@
-package me.jeongrae.chat.domain.model;
+package me.jeongrae.chat.domain.chat.model;
 
 import me.jeongrae.chat.domain.shared.error.ChatErrorCode;
 import me.jeongrae.chat.domain.shared.error.ErrorTemplate;

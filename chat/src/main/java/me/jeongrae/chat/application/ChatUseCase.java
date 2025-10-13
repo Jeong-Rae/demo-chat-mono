@@ -1,8 +1,8 @@
 package me.jeongrae.chat.application;
 
-import me.jeongrae.chat.domain.model.ChatMessage;
-import me.jeongrae.chat.domain.model.ChatRoom;
-import me.jeongrae.chat.domain.model.UserId;
+import me.jeongrae.chat.domain.chat.model.ChatMessage;
+import me.jeongrae.chat.domain.chat.model.ChatRoom;
+import me.jeongrae.chat.domain.chat.model.UserId;
 
 public interface ChatUseCase {
 

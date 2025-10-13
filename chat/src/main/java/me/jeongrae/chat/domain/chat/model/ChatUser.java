@@ -1,4 +1,4 @@
-package me.jeongrae.chat.domain.model;
+package me.jeongrae.chat.domain.chat.model;
 
 import me.jeongrae.chat.common.guard.Guard;
 import java.time.Instant;
