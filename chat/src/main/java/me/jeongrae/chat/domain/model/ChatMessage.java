@@ -1,7 +1,7 @@
 package me.jeongrae.chat.domain.model;
 
+import me.jeongrae.chat.common.guard.Guard;
 import java.time.Instant;
-import java.util.Objects;
 
 public class ChatMessage implements Identifiable<MessageId> {
 
@@ -12,14 +12,10 @@ public class ChatMessage implements Identifiable<MessageId> {
     private final Instant sentAt;
 
     private ChatMessage(RoomId roomId, UserId senderId, ChatText text) {
-        Objects.requireNonNull(roomId, "roomId must not be null");
-        Objects.requireNonNull(senderId, "senderId must not be null");
-        Objects.requireNonNull(text, "text must not be null");
-
         this.messageId = MessageId.generate();
-        this.roomId = roomId;
-        this.senderId = senderId;
-        this.text = text;
+        this.roomId = Guard.notNull(roomId, "roomId는 null일 수 없습니다.");
+        this.senderId = Guard.notNull(senderId, "senderId는 null일 수 없습니다.");
+        this.text = Guard.notNull(text, "text는 null일 수 없습니다.");
         this.sentAt = Instant.now();
     }
 

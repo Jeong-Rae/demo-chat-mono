@@ -1,6 +1,7 @@
 package me.jeongrae.chat.domain.model;
 
 import lombok.EqualsAndHashCode;
+import me.jeongrae.chat.common.guard.Guard;
 
 /**
  * 시스템에 접속한 사용자를 나타내는 객체.
@@ -11,10 +12,7 @@ public final class UserId {
     private final String value;
 
     private UserId(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("value must not be empty");
-        }
-        this.value = value;
+        this.value = Guard.notBlank(value, "UserId 값은 비어있을 수 없습니다.");
     }
 
     public static UserId of(String value) {

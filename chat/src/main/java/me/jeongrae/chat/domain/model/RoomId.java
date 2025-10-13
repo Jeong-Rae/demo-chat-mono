@@ -1,8 +1,8 @@
 package me.jeongrae.chat.domain.model;
 
 import lombok.EqualsAndHashCode;
+import me.jeongrae.chat.common.guard.Guard;
 
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -14,10 +14,7 @@ public final class RoomId {
     private final String value;
 
     private RoomId(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("value must not be empty");
-        }
-        this.value = value;
+        this.value = Guard.notBlank(value, "RoomId 값은 비어있을 수 없습니다.");
     }
 
     public static RoomId of(String value) {
@@ -25,8 +22,8 @@ public final class RoomId {
     }
 
     public static RoomId of(UserId user1, UserId user2) {
-        Objects.requireNonNull(user1, "user1 must not be null");
-        Objects.requireNonNull(user2, "user2 must not be null");
+        Guard.notNull(user1, "user1은 null일 수 없습니다.");
+        Guard.notNull(user2, "user2는 null일 수 없습니다.");
 
         String sortedUsers = Stream.of(user1.value(), user2.value())
                 .sorted()

@@ -1,6 +1,7 @@
 package me.jeongrae.chat.domain.model;
 
 import lombok.EqualsAndHashCode;
+import me.jeongrae.chat.common.guard.Guard;
 
 import java.util.UUID;
 
@@ -13,10 +14,7 @@ public final class MessageId {
     private final String value;
 
     private MessageId(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("value must not be empty");
-        }
-        this.value = value;
+        this.value = Guard.notBlank(value, "MessageId 값은 비어있을 수 없습니다.");
     }
 
     public static MessageId of(String value) {

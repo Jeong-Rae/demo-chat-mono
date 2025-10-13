@@ -1,7 +1,7 @@
 package me.jeongrae.chat.domain.model;
 
+import me.jeongrae.chat.common.guard.Guard;
 import java.time.Instant;
-import java.util.Objects;
 
 public class ChatUser implements Identifiable<UserId> {
 
@@ -10,13 +10,8 @@ public class ChatUser implements Identifiable<UserId> {
     private final Instant joinedAt;
 
     private ChatUser(UserId userId, String username) {
-        Objects.requireNonNull(userId, "userId must not be null");
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("username must not be empty");
-        }
-
-        this.userId = userId;
-        this.username = username;
+        this.userId = Guard.notNull(userId, "userId는 null일 수 없습니다.");
+        this.username = Guard.notBlank(username, "username은 비어있을 수 없습니다.");
         this.joinedAt = Instant.now();
     }
 

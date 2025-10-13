@@ -1,6 +1,7 @@
 package me.jeongrae.chat.domain.model;
 
 import lombok.EqualsAndHashCode;
+import me.jeongrae.chat.common.guard.Guard;
 
 /**
  * 채팅 메시지 본문.
@@ -13,13 +14,9 @@ public final class ChatText {
     private final String value;
 
     private ChatText(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("value must not be blank");
-        }
-        if (value.length() > MAX_LENGTH) {
-            throw new IllegalArgumentException("value must be less than or equal to " + MAX_LENGTH);
-        }
-        this.value = value;
+        String text = Guard.notBlank(value, "메시지 내용은 비어있을 수 없습니다.");
+        Guard.max(text.length(), MAX_LENGTH, "메시지 내용은 " + MAX_LENGTH + "자를 초과할 수 없습니다.");
+        this.value = text;
     }
 
     public static ChatText of(String value) {
