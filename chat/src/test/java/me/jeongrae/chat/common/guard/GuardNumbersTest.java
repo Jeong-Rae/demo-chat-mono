@@ -72,4 +72,40 @@ class GuardNumbersTest {
         assertThrows(IllegalArgumentException.class, () -> Guard.notEquals(value, 10));
         assertThrows(IllegalArgumentException.class, () -> Guard.notEquals(value, 10, () -> "같음"));
     }
+
+    @DisplayName("min: 숫자가 최소값 이상인 경우 값을 반환한다")
+    @Test
+    void min_shouldReturnValue_whenGreaterThanOrEqual() {
+        Integer value = 10;
+        assertEquals(value, Guard.min(value, 5));
+        assertEquals(value, Guard.min(value, 10));
+        assertEquals(value, Guard.min(value, 5, () -> "최소값 오류"));
+        assertEquals(value, Guard.min(value, 10, () -> "최소값 오류"));
+    }
+
+    @DisplayName("min: 숫자가 최소값 미만인 경우 IllegalArgumentException을 발생시킨다")
+    @Test
+    void min_shouldThrowIllegalArgumentException_whenLessThan() {
+        Integer value = 10;
+        assertThrows(IllegalArgumentException.class, () -> Guard.min(value, 15));
+        assertThrows(IllegalArgumentException.class, () -> Guard.min(value, 15, () -> "최소값 오류"));
+    }
+
+    @DisplayName("max: 숫자가 최대값 이하인 경우 값을 반환한다")
+    @Test
+    void max_shouldReturnValue_whenLessThanOrEqual() {
+        Integer value = 10;
+        assertEquals(value, Guard.max(value, 15));
+        assertEquals(value, Guard.max(value, 10));
+        assertEquals(value, Guard.max(value, 15, () -> "최대값 오류"));
+        assertEquals(value, Guard.max(value, 10, () -> "최대값 오류"));
+    }
+
+    @DisplayName("max: 숫자가 최대값 초과인 경우 IllegalArgumentException을 발생시킨다")
+    @Test
+    void max_shouldThrowIllegalArgumentException_whenGreaterThan() {
+        Integer value = 10;
+        assertThrows(IllegalArgumentException.class, () -> Guard.max(value, 5));
+        assertThrows(IllegalArgumentException.class, () -> Guard.max(value, 5, () -> "최대값 오류"));
+    }
 }

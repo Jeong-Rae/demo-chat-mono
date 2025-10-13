@@ -281,6 +281,61 @@ public final class Guard {
     }
 
     /**
+     * 숫자가 최소값 이상인지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param min 최소값
+     * @param <T> 숫자 타입
+     * @return 최소값 이상의 숫자
+     * @throws IllegalArgumentException 숫자가 최소값 미만인 경우
+     */
+    public static <T extends Number & Comparable<T>> T min(T value, T min) {
+        return GuardNumbers.min(value, min, () -> "숫자 " + value + "는 " + min + " 이상이어야 합니다.");
+    }
+
+    /**
+     * 숫자가 최소값 이상인지 확인합니다. (지연 메시지)
+     *
+     * @param value 확인할 숫자
+     * @param min 최소값
+     * @param message 예외 메시지 공급자
+     * @param <T> 숫자 타입
+     * @return 최소값 이상의 숫자
+     * @throws IllegalArgumentException 숫자가 최소값 미만인 경우
+     */
+    public static <T extends Number & Comparable<T>> T min(T value, T min, Supplier<String> message) {
+        return GuardNumbers.min(value, min, message);
+    }
+
+    /**
+     * 숫자가 최대값 이하인지 확인합니다.
+     *
+     * @param value 확인할 숫자
+     * @param max 최대값
+     * @param <T> 숫자 타입
+     * @return 최대값 이하의 숫자
+     * @throws IllegalArgumentException 숫자가 최대값 초과인 경우
+     */
+    public static <T extends Number & Comparable<T>> T max(T value, T max) {
+        return GuardNumbers.max(value, max, () -> "숫자 " + value + "는 " + max + " 이하여야 합니다.");
+    }
+
+    /**
+     * 숫자가 최대값 이하인지 확인합니다. (지연 메시지)
+     *
+     * @param value 확인할 숫자
+     * @param max 최대값
+     * @param message 예외 메시지 공급자
+     * @param <T> 숫자 타입
+     * @return 최대값 이하의 숫자
+     * @throws IllegalArgumentException 숫자가 최대값 초과인 경우
+     */
+    public static <T extends Number & Comparable<T>> T max(T value, T max, Supplier<String> message) {
+        return GuardNumbers.max(value, max, message);
+    }
+
+
+    /**
      * 컬렉션이 null이 아니고 비어있지 않은지 확인합니다.
      *
      * @param collection 확인할 컬렉션
