@@ -9,6 +9,8 @@ import java.util.function.Supplier;
  */
 public final class GuardInternal {
 
+    private static final String MUST_NOT_BE_NULL = "null일 수 없습니다.";
+
     private GuardInternal() { /* no-op */ }
 
     /**
@@ -24,5 +26,21 @@ public final class GuardInternal {
         } catch (Exception ignored) {
             return fallback;
         }
+    }
+
+    /**
+     * 객체가 null이 아님을 확인합니다. (지연 메시지)
+     *
+     * @param value 확인할 객체
+     * @param message 예외 메시지 공급자
+     * @param <T> 객체 타입
+     * @return null이 아닌 객체
+     * @throws NullPointerException 객체가 null인 경우
+     */
+    public static <T> T notNull(T value, Supplier<String> message) {
+        if (value == null) {
+            throw new NullPointerException(lazy(message, MUST_NOT_BE_NULL));
+        }
+        return value;
     }
 }

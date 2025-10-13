@@ -47,7 +47,7 @@ public final class GuardString {
      * @throws IllegalArgumentException 문자열 길이가 범위를 벗어난 경우
      */
     public static String lengthBetween(String text, int minLength, int maxLength, Supplier<String> message) {
-        Guard.notNull(text, () -> "문자열은 null일 수 없습니다.");
+        GuardInternal.notNull(text, () -> "문자열은 null일 수 없습니다.");
         int length = text.length();
         if (length < minLength || length > maxLength) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, TEXT_LENGTH_OUT_OF_RANGE));
@@ -65,8 +65,8 @@ public final class GuardString {
      * @throws IllegalArgumentException 문자열이 정규식과 일치하지 않는 경우
      */
     public static String matches(String text, String regex, Supplier<String> message) {
-        Guard.notNull(text, () -> "문자열은 null일 수 없습니다.");
-        Guard.notNull(regex, () -> "정규식은 null일 수 없습니다.");
+        GuardInternal.notNull(text, () -> "문자열은 null일 수 없습니다.");
+        GuardInternal.notNull(regex, () -> "정규식은 null일 수 없습니다.");
         if (!Pattern.matches(regex, text)) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, TEXT_DOES_NOT_MATCH_REGEX));
         }

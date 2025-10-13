@@ -23,7 +23,7 @@ public final class GuardCollections {
      * @throws IllegalArgumentException 컬렉션이 null이거나 비어있는 경우
      */
     public static <T extends Collection<?>> T notEmpty(T collection, Supplier<String> message) {
-        Guard.notNull(collection, () -> "컬렉션은 null일 수 없습니다.");
+        GuardInternal.notNull(collection, () -> "컬렉션은 null일 수 없습니다.");
         if (collection.isEmpty()) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, COLLECTION_MUST_NOT_BE_EMPTY));
         }
@@ -40,7 +40,7 @@ public final class GuardCollections {
      * @throws IllegalArgumentException 컬렉션이 null 요소를 포함하는 경우
      */
     public static <T extends Collection<?>> T noNullElements(T collection, Supplier<String> message) {
-        Guard.notNull(collection, () -> "컬렉션은 null일 수 없습니다.");
+        GuardInternal.notNull(collection, () -> "컬렉션은 null일 수 없습니다.");
         for (Object element : collection) {
             if (element == null) {
                 throw new IllegalArgumentException(GuardInternal.lazy(message, COLLECTION_MUST_NOT_CONTAIN_NULL_ELEMENTS));

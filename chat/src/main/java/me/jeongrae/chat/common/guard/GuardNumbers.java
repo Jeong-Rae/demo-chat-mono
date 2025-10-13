@@ -28,9 +28,9 @@ public final class GuardNumbers {
      * @throws IllegalArgumentException 숫자가 범위 밖에 있는 경우
      */
     public static <T extends Number & Comparable<T>> T inRange(T value, T min, T max, Supplier<String> message) {
-        Guard.notNull(value, () -> "숫자는 null일 수 없습니다.");
-        Guard.notNull(min, () -> "최소값은 null일 수 없습니다.");
-        Guard.notNull(max, () -> "최대값은 null일 수 없습니다.");
+        GuardInternal.notNull(value, () -> "숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(min, () -> "최소값은 null일 수 없습니다.");
+        GuardInternal.notNull(max, () -> "최대값은 null일 수 없습니다.");
 
         if (value.compareTo(min) < 0 || value.compareTo(max) > 0) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, NUMBER_MUST_BE_IN_RANGE));
@@ -48,7 +48,7 @@ public final class GuardNumbers {
      * @throws IllegalArgumentException 숫자가 양수가 아닌 경우
      */
     public static <T extends Number & Comparable<T>> T positive(T value, Supplier<String> message) {
-        Guard.notNull(value, () -> "숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(value, () -> "숫자는 null일 수 없습니다.");
         if (value.doubleValue() <= 0) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, NUMBER_MUST_BE_POSITIVE));
         }
@@ -66,8 +66,8 @@ public final class GuardNumbers {
      * @throws IllegalArgumentException 두 숫자가 같지 않은 경우
      */
     public static <T extends Number & Comparable<T>> T equals(T value, T expected, Supplier<String> message) {
-        Guard.notNull(value, () -> "숫자는 null일 수 없습니다.");
-        Guard.notNull(expected, () -> "예상 숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(value, () -> "숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(expected, () -> "예상 숫자는 null일 수 없습니다.");
         if (value.compareTo(expected) != 0) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, NUMBERS_MUST_BE_EQUAL));
         }
@@ -85,8 +85,8 @@ public final class GuardNumbers {
      * @throws IllegalArgumentException 두 숫자가 같은 경우
      */
     public static <T extends Number & Comparable<T>> T notEquals(T value, T unexpected, Supplier<String> message) {
-        Guard.notNull(value, () -> "숫자는 null일 수 없습니다.");
-        Guard.notNull(unexpected, () -> "예상하지 않은 숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(value, () -> "숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(unexpected, () -> "예상하지 않은 숫자는 null일 수 없습니다.");
         if (value.compareTo(unexpected) == 0) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, NUMBERS_MUST_NOT_BE_EQUAL));
         }
@@ -104,8 +104,8 @@ public final class GuardNumbers {
      * @throws IllegalArgumentException 숫자가 최소값 미만인 경우
      */
     public static <T extends Number & Comparable<T>> T min(T value, T min, Supplier<String> message) {
-        Guard.notNull(value, () -> "숫자는 null일 수 없습니다.");
-        Guard.notNull(min, () -> "최소값은 null일 수 없습니다.");
+        GuardInternal.notNull(value, () -> "숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(min, () -> "최소값은 null일 수 없습니다.");
 
         if (value.compareTo(min) < 0) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, NUMBER_MUST_BE_GREATER_THAN_OR_EQUAL_TO_MIN));
@@ -124,8 +124,8 @@ public final class GuardNumbers {
      * @throws IllegalArgumentException 숫자가 최대값 초과인 경우
      */
     public static <T extends Number & Comparable<T>> T max(T value, T max, Supplier<String> message) {
-        Guard.notNull(value, () -> "숫자는 null일 수 없습니다.");
-        Guard.notNull(max, () -> "최대값은 null일 수 없습니다.");
+        GuardInternal.notNull(value, () -> "숫자는 null일 수 없습니다.");
+        GuardInternal.notNull(max, () -> "최대값은 null일 수 없습니다.");
 
         if (value.compareTo(max) > 0) {
             throw new IllegalArgumentException(GuardInternal.lazy(message, NUMBER_MUST_BE_LESS_THAN_OR_EQUAL_TO_MAX));

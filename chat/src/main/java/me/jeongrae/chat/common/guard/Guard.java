@@ -36,10 +36,7 @@ public final class Guard {
      * @throws NullPointerException 객체가 null인 경우
      */
     public static <T> T notNull(T value) {
-        if (value == null) {
-            throw new NullPointerException(MUST_NOT_BE_NULL);
-        }
-        return value;
+        return GuardInternal.notNull(value, () -> MUST_NOT_BE_NULL);
     }
 
     /**
@@ -52,10 +49,7 @@ public final class Guard {
      * @throws NullPointerException 객체가 null인 경우
      */
     public static <T> T notNull(T value, Supplier<String> message) {
-        if (value == null) {
-            throw new NullPointerException(GuardInternal.lazy(message, MUST_NOT_BE_NULL));
-        }
-        return value;
+        return GuardInternal.notNull(value, message);
     }
 
     /**
