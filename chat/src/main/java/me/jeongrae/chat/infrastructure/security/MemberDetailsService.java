@@ -13,7 +13,7 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class MemberDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserDetails toUserDetails(Member member) {
         return User.builder().username(member.username()).password(member.hashedPassword().value())
-                .authorities(Collections.emptyList()) // Add roles/authorities here if needed
+                .authorities(Collections.emptyList()) // TODO: Role이나 Auth 추가해야함
                 .build();
     }
 }

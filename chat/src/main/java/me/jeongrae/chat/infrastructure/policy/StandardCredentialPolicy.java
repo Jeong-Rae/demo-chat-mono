@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;
 
 @Component
-public class DefaultCredentialPolicy implements CredentialPolicy {
+public class StandardCredentialPolicy implements CredentialPolicy {
 
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-z0-9]{4,20}$");
     private static final PasswordStrength REQUIRED_PASSWORD_STRENGTH = PasswordStrength.MEDIUM;
