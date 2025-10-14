@@ -4,9 +4,9 @@ import me.jeongrae.chat.domain.authn.credential.HashedPassword;
 import me.jeongrae.chat.domain.authn.credential.Password;
 
 /**
- * 비밀번호 정책을 정의한다.
+ * 비밀번호 해싱 및 검증을 정의한다.
  */
-public interface PasswordPolicy {
+public interface PasswordHasher {
 
     HashedPassword hash(Password password);
 

@@ -1,128 +1,125 @@
 package me.jeongrae.chat.domain.authn.member;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import me.jeongrae.chat.domain.authn.credential.HashedPassword;
 import me.jeongrae.chat.domain.authn.credential.Password;
-import me.jeongrae.chat.domain.authn.policy.PasswordPolicy;
-import org.junit.jupiter.api.BeforeEach;
+import me.jeongrae.chat.domain.authn.policy.CredentialPolicy;
+import me.jeongrae.chat.domain.authn.policy.PasswordHasher;
+import me.jeongrae.chat.domain.shared.error.ChatErrorCode;
+import me.jeongrae.chat.domain.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("Member 애그리게이트 테스트")
 class MemberTest {
 
-    private PasswordPolicy mockPasswordPolicy;
+    @Mock
+    private CredentialPolicy credentialPolicy;
 
-    @BeforeEach
-    void setUp() {
-        mockPasswordPolicy = new PasswordPolicy() {
-            @Override
-            public HashedPassword hash(Password password) {
-                return HashedPassword.of("hashed-" + password.value());
-            }
-
-            @Override
-            public boolean matches(Password password, HashedPassword hashedPassword) {
-                return hashedPassword.value().equals("hashed-" + password.value());
-            }
-        };
-    }
+    @Mock
+    private PasswordHasher passwordHasher;
 
     @Test
-    @DisplayName("Member 등록 성공")
-    void register_Success() {
+    @DisplayName("register: 정책을 통과하면 Member를 생성한다")
+    void register_shouldCreateMember_whenPolicyPasses() {
         // given
         MemberId memberId = MemberId.of("member123");
         String username = "testuser";
         String nickname = "tester";
-        Password password = Password.of("ValidPassword123!"); // Medium strength
+        Password password = Password.of("ValidPassword123!");
+        HashedPassword hashedPassword = HashedPassword.of("hashed-password");
+
+        doNothing().when(credentialPolicy).check(username, nickname, password);
+        when(passwordHasher.hash(password)).thenReturn(hashedPassword);
 
         // when
-        Member member = Member.register(memberId, username, nickname, password, mockPasswordPolicy);
+        Member member = Member.register(memberId, username, nickname, password, credentialPolicy, passwordHasher);
 
         // then
         assertThat(member).isNotNull();
         assertThat(member.id()).isEqualTo(memberId);
         assertThat(member.username()).isEqualTo(username);
         assertThat(member.nickname()).isEqualTo(nickname);
-        assertThat(member.hashedPassword()).isNotNull();
+        assertThat(member.hashedPassword()).isEqualTo(hashedPassword);
+
+        verify(credentialPolicy).check(username, nickname, password);
+        verify(passwordHasher).hash(password);
     }
 
     @Test
-    @DisplayName("Member 등록 실패 - 비밀번호 강도 부족")
-    void register_Failure_WeakPassword() {
+    @DisplayName("register: 자격 증명 정책 검사에 실패하면 예외가 발생한다")
+    void register_shouldThrowException_whenCredentialPolicyFails() {
         // given
         MemberId memberId = MemberId.of("member123");
-        String username = "testuser";
+        String username = "invalid-user";
         String nickname = "tester";
-        Password password = Password.of("weak"); // Weak strength
+        Password password = Password.of("weak");
+
+        doThrow(ChatErrorCode.PASSWORD_TOO_WEAK.ex()).when(credentialPolicy).check(username, nickname, password);
 
         // when & then
-        assertThatThrownBy(() -> Member.register(memberId, username, nickname, password, mockPasswordPolicy))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Member.register(memberId, username, nickname, password, credentialPolicy, passwordHasher))
+                .isInstanceOf(DomainException.class);
+
+        verify(passwordHasher, never()).hash(any());
     }
 
     @Test
-    @DisplayName("Member 인증 성공")
-    void authenticate_Success() {
+    @DisplayName("authenticate: 비밀번호가 일치하면 true를 반환한다")
+    void authenticate_shouldReturnTrue_whenPasswordMatches() {
         // given
         MemberId memberId = MemberId.of("member123");
         String username = "testuser";
         String nickname = "tester";
         Password password = Password.of("ValidPassword123!");
-        Member member = Member.register(memberId, username, nickname, password, mockPasswordPolicy);
+        HashedPassword hashedPassword = HashedPassword.of("hashed-password");
+
+        // Member를 생성하기 위해 register 과정을 모킹
+        doNothing().when(credentialPolicy).check(username, nickname, password);
+        when(passwordHasher.hash(password)).thenReturn(hashedPassword);
+        Member member = Member.register(memberId, username, nickname, password, credentialPolicy, passwordHasher);
+
+        // authenticate 호출에 대한 모킹 설정
+        when(passwordHasher.matches(password, hashedPassword)).thenReturn(true);
 
         // when
-        boolean isAuthenticated = member.authenticate(password, mockPasswordPolicy);
+        boolean isAuthenticated = member.authenticate(password, passwordHasher);
 
         // then
         assertThat(isAuthenticated).isTrue();
     }
 
     @Test
-    @DisplayName("Member 인증 실패 - 잘못된 비밀번호")
-    void authenticate_Failure_WrongPassword() {
+    @DisplayName("authenticate: 비밀번호가 일치하지 않으면 false를 반환한다")
+    void authenticate_shouldReturnFalse_whenPasswordDoesNotMatch() {
         // given
         MemberId memberId = MemberId.of("member123");
         String username = "testuser";
         String nickname = "tester";
-        Password correctPassword = Password.of("ValidPassword123!");
-        Password wrongPassword = Password.of("WrongPassword123!");
-        Member member = Member.register(memberId, username, nickname, correctPassword, mockPasswordPolicy);
+        Password password = Password.of("ValidPassword123!");
+        Password wrongPassword = Password.of("WrongPassword");
+        HashedPassword hashedPassword = HashedPassword.of("hashed-password");
+
+        // Member를 생성하기 위해 register 과정을 모킹
+        doNothing().when(credentialPolicy).check(username, nickname, password);
+        when(passwordHasher.hash(password)).thenReturn(hashedPassword);
+        Member member = Member.register(memberId, username, nickname, password, credentialPolicy, passwordHasher);
+
+        // authenticate 호출에 대한 모킹 설정
+        when(passwordHasher.matches(wrongPassword, hashedPassword)).thenReturn(false);
 
         // when
-        boolean isAuthenticated = member.authenticate(wrongPassword, mockPasswordPolicy);
+        boolean isAuthenticated = member.authenticate(wrongPassword, passwordHasher);
 
         // then
         assertThat(isAuthenticated).isFalse();
-    }
-    
-    @Test
-    @DisplayName("Member 생성 실패 - username이 비어있음")
-    void register_Failure_BlankUsername() {
-        // given
-        MemberId memberId = MemberId.of("member123");
-        String username = "";
-        String nickname = "tester";
-        Password password = Password.of("ValidPassword123!");
-
-        // when & then
-        assertThatThrownBy(() -> Member.register(memberId, username, nickname, password, mockPasswordPolicy))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("Member 생성 실패 - nickname이 비어있음")
-    void register_Failure_BlankNickname() {
-        // given
-        MemberId memberId = MemberId.of("member123");
-        String username = "testuser";
-        String nickname = "";
-        Password password = Password.of("ValidPassword123!");
-
-        // when & then
-        assertThatThrownBy(() -> Member.register(memberId, username, nickname, password, mockPasswordPolicy))
-            .isInstanceOf(IllegalArgumentException.class);
     }
 }
