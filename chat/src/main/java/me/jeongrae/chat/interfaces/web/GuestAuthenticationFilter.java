@@ -23,7 +23,6 @@ public class GuestAuthenticationFilter extends AbstractAuthenticationProcessingF
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
-        // Extract nickname from request body (simple implementation)
         String nickname = request.getParameter("nickname");
         if (nickname == null) {
             nickname = "";
