@@ -13,14 +13,15 @@ import me.jeongrae.chat.domain.shared.model.Entity;
 @Accessors(fluent = true)
 public class Guest extends Entity<GuestId> {
 
-    private final String username;
+    private final String nickname;
 
-    private Guest(GuestId guestId, String username) {
+    private Guest(GuestId guestId, String nickname) {
         super(guestId);
-        this.username = Guard.notBlank(username, ErrorTemplate.VALUE_CANNOT_BE_EMPTY.format("username"));
+        this.nickname =
+                Guard.notBlank(nickname, ErrorTemplate.VALUE_CANNOT_BE_EMPTY.format("nickname"));
     }
 
-    public static Guest of(GuestId guestId, String username) {
-        return new Guest(guestId, username);
+    public static Guest of(GuestId guestId, String nickname) {
+        return new Guest(guestId, nickname);
     }
 }

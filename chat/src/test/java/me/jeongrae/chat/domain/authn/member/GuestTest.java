@@ -13,37 +13,36 @@ class GuestTest {
     void of_Success() {
         // given
         GuestId guestId = GuestId.of("guest123");
-        String username = "guestUser";
+        String nickname = "guestUser";
 
         // when
-        Guest guest = Guest.of(guestId, username);
+        Guest guest = Guest.of(guestId, nickname);
 
         // then
         assertThat(guest).isNotNull();
         assertThat(guest.id()).isEqualTo(guestId);
-        assertThat(guest.username()).isEqualTo(username);
+        assertThat(guest.nickname()).isEqualTo(nickname);
     }
 
     @Test
-    @DisplayName("Guest 생성 실패 - username이 비어있음")
-    void of_Failure_BlankUsername() {
+    @DisplayName("Guest 생성 실패 - nickname 비어있음")
+    void of_Failure_BlankNickname() {
         // given
         GuestId guestId = GuestId.of("guest123");
-        String username = "";
+        String nickname = "";
 
         // when & then
-        assertThatThrownBy(() -> Guest.of(guestId, username))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Guest.of(guestId, nickname))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("Guest 생성 실패 - guestId가 null")
     void of_Failure_NullGuestId() {
         // given
-        String username = "guestUser";
+        String nickname = "guestUser";
 
         // when & then
-        assertThatThrownBy(() -> Guest.of(null, username))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> Guest.of(null, nickname)).isInstanceOf(NullPointerException.class);
     }
 }
