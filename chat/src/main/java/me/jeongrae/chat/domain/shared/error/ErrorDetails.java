@@ -20,7 +20,7 @@ public final class ErrorDetails {
     }
 
     /**
-     * key-value 쌍으로부터 ErrorDetails를 생성합니다.
+     * key-value 쌍으로부터 ErrorDetails를 생성
      * 
      * @param kvPairs key, value, key, value ... 형식의 배열
      * @return 생성된 ErrorDetails 객체

@@ -10,7 +10,6 @@ import me.jeongrae.chat.infrastructure.persistence.repository.MemberJpaRepositor
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 @Component
@@ -43,26 +42,7 @@ public class MemberRepositoryAdapter implements MemberRepository {
     }
 
     private Member toDomain(MemberJpaEntity entity) {
-        try {
-            MemberId memberId = MemberId.of(entity.getId());
-            HashedPassword hashedPassword = HashedPassword.of(entity.getHashedPassword());
-
-            // Using reflection to bypass the public factory method's logic
-            Member member = (Member) Member.class.getDeclaredConstructors()[0].newInstance(
-                    memberId,
-                    entity.getUsername(),
-                    entity.getNickname(),
-                    hashedPassword
-            );
-
-            // Set the ID using reflection since the constructor in the Entity superclass handles it
-            Field idField = Member.class.getSuperclass().getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(member, memberId);
-
-            return member;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to map MemberJpaEntity to Member domain object", e);
-        }
+        return Member.of(MemberId.of(entity.getId()), entity.getUsername(), entity.getNickname(),
+                HashedPassword.of(entity.getHashedPassword()));
     }
 }

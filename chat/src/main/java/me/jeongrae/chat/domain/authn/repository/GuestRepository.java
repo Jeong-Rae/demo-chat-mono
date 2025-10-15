@@ -3,12 +3,12 @@ package me.jeongrae.chat.domain.authn.repository;
 import me.jeongrae.chat.domain.authn.member.Guest;
 
 /**
- * Guest 애그리게이트에 대한 Repository 인터페이스입니다.
+ * Guest 애그리게이트 Repository.
  */
 public interface GuestRepository {
 
     /**
-     * Guest를 저장합니다.
+     * Guest를 저장.
      *
      * @param guest 저장할 Guest
      * @return 저장된 Guest

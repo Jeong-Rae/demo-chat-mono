@@ -1,6 +1,7 @@
 package me.jeongrae.chat.infrastructure.policy;
 
-import me.jeongrae.chat.common.guard.Guard;
+import static me.jeongrae.chat.common.guard.Guard.isTrue;
+import static me.jeongrae.chat.common.guard.Guard.notBlank;
 import me.jeongrae.chat.domain.authn.credential.Password;
 import me.jeongrae.chat.domain.authn.credential.PasswordStrength;
 import me.jeongrae.chat.domain.authn.policy.CredentialPolicy;
@@ -17,15 +18,24 @@ public class StandardCredentialPolicy implements CredentialPolicy {
 
     @Override
     public void check(String username, String nickname, Password password) {
-        Guard.notBlank(username, ChatErrorCode.USERNAME_CANNOT_BE_BLANK.defaultMessage());
-        Guard.isTrue(USERNAME_PATTERN.matcher(username).matches(),
+        checkUsername(username);
+        checkNickname(nickname);
+        checkPassword(password);
+    }
+
+    private void checkUsername(String username) {
+        notBlank(username, ChatErrorCode.USERNAME_CANNOT_BE_BLANK.defaultMessage());
+        isTrue(USERNAME_PATTERN.matcher(username).matches(),
                 ChatErrorCode.INVALID_USERNAME_FORMAT.defaultMessage());
+    }
 
-        Guard.notBlank(nickname, ChatErrorCode.NICKNAME_CANNOT_BE_BLANK.defaultMessage());
+    private void checkNickname(String nickname) {
+        notBlank(nickname, ChatErrorCode.NICKNAME_CANNOT_BE_BLANK.defaultMessage());
+    }
 
-        Guard.notNull(password, ChatErrorCode.PASSWORD_CANNOT_BE_NULL.defaultMessage());
+    private void checkPassword(Password password) {
         PasswordStrength strength = password.strength();
-        Guard.isTrue(strength.meetsOrExceeds(REQUIRED_PASSWORD_STRENGTH),
+        isTrue(strength.meetsOrExceeds(REQUIRED_PASSWORD_STRENGTH),
                 ChatErrorCode.PASSWORD_TOO_WEAK.defaultMessage());
     }
 }

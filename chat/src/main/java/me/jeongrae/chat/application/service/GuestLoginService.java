@@ -18,13 +18,9 @@ public class GuestLoginService {
 
     @Transactional
     public Guest login(GuestLoginCommand command) {
-        // 1. Generate a unique ID for the guest
         GuestId guestId = guestIdGenerator.generate();
-
-        // 2. Create the guest entity
         Guest guest = Guest.of(guestId, command.nickname());
 
-        // 3. Save the guest
         return guestRepository.save(guest);
     }
 }
