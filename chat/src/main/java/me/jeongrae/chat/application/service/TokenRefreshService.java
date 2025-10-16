@@ -1,10 +1,10 @@
 package me.jeongrae.chat.application.service;
 
 import lombok.RequiredArgsConstructor;
+import me.jeongrae.chat.application.error.ApplicationErrorCode;
 import me.jeongrae.chat.domain.authn.member.Member;
 import me.jeongrae.chat.domain.authn.member.MemberId;
 import me.jeongrae.chat.domain.authn.repository.MemberRepository;
-import me.jeongrae.chat.domain.shared.error.ChatErrorCode;
 import me.jeongrae.chat.infrastructure.persistence.entity.RefreshToken;
 import me.jeongrae.chat.infrastructure.persistence.repository.RefreshTokenRepository;
 import me.jeongrae.chat.infrastructure.security.JwtProvider;
@@ -29,18 +29,19 @@ public class TokenRefreshService {
 
     @Transactional
     public TokenResponse refreshTokens(String refreshTokenValue) {
-        
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> ChatErrorCode.INVALID_CREDENTIALS.ex("Invalid refresh token"));
+
+        RefreshToken refreshToken =
+                refreshTokenRepository.findByToken(refreshTokenValue).orElseThrow(
+                        () -> ApplicationErrorCode.INVALID_REFRESH_TOKEN.ex("올바르지 않은 리프레시 토큰입니다."));
 
         if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
             refreshTokenRepository.delete(refreshToken);
-            throw ChatErrorCode.INVALID_CREDENTIALS.ex("Refresh token has expired");
+            throw ApplicationErrorCode.INVALID_REFRESH_TOKEN.ex("만료된 리프레시 토큰입니다.");
         }
 
         String memberId = refreshToken.getMemberId();
         Member member = memberRepository.findById(MemberId.of(memberId)).orElseThrow(
-                () -> ChatErrorCode.INVALID_CREDENTIALS.ex("User not found for refresh token"));
+                () -> ApplicationErrorCode.INVALID_REFRESH_TOKEN.ex("올바르지 않은 리프레시 토큰입니다."));
 
         String newAccessToken = jwtProvider.generateAccessToken(member);
         String newRefreshTokenValue = UUID.randomUUID().toString();

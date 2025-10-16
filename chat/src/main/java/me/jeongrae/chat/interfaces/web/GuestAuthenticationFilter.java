@@ -37,9 +37,6 @@ public class GuestAuthenticationFilter extends AbstractAuthenticationProcessingF
             HttpServletResponse response, FilterChain chain, Authentication authResult)
             throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(authResult);
-        // The SecurityContextPersistenceFilter will save the context, creating the session.
-        // We don't need to do anything else here.
-        // You might want to return a success response to the client.
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }
