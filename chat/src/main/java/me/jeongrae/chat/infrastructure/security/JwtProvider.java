@@ -10,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
@@ -18,7 +17,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SecurityException;
+
 
 @Component
 public class JwtProvider {
@@ -74,12 +75,23 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
+    private static final String INVALID_JWT_TOKEN_MESSAGE = "잘못된 JWT 토큰입니다.";
+    private static final String EXPIRED_JWT_TOKEN_MESSAGE = "만료된 JWT 토큰입니다.";
+    private static final String UNSUPPORTED_JWT_TOKEN_MESSAGE = "지원되지 않는 JWT 토큰입니다.";
+    private static final String EMPTY_JWT_CLAIMS_MESSAGE = "JWT 클레임 문자열이 비어있습니다.";
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (SecurityException | MalformedJwtException e) {
+            throw new InvalidJwtAuthenticationException(INVALID_JWT_TOKEN_MESSAGE, e);
+        } catch (ExpiredJwtException e) {
+            throw new InvalidJwtAuthenticationException(EXPIRED_JWT_TOKEN_MESSAGE, e);
+        } catch (UnsupportedJwtException e) {
+            throw new InvalidJwtAuthenticationException(UNSUPPORTED_JWT_TOKEN_MESSAGE, e);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidJwtAuthenticationException(EMPTY_JWT_CLAIMS_MESSAGE, e);
         }
     }
 }

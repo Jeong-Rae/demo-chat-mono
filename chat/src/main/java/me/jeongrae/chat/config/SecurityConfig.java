@@ -1,8 +1,8 @@
 package me.jeongrae.chat.config;
 
 import lombok.RequiredArgsConstructor;
+import me.jeongrae.chat.infrastructure.security.JwtAuthenticationEntryPoint;
 import me.jeongrae.chat.infrastructure.security.JwtAuthenticationFilter;
-import me.jeongrae.chat.infrastructure.security.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,11 +20,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtProvider jwtProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    private static final int ARGON2_SALT_LENGTH = 16;
+    private static final int ARGON2_HASH_LENGTH = 32;
+    private static final int ARGON2_PARALLELISM = 1;
+    private static final int ARGON2_MEMORY = 65536;
+    private static final int ARGON2_ITERATIONS = 10;
+    private static final String API_AUTH_PATH_PATTERN = "/api/auth/**";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new Argon2PasswordEncoder(16, 32, 1, 65536, 10);
+        return new Argon2PasswordEncoder(ARGON2_SALT_LENGTH, ARGON2_HASH_LENGTH, ARGON2_PARALLELISM,
+                ARGON2_MEMORY, ARGON2_ITERATIONS);
     }
 
     @Bean
@@ -35,15 +44,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable()).exceptionHandling(
+                exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz.requestMatchers("/api/auth/**").permitAll()
+                .authorizeHttpRequests(authz -> authz.requestMatchers(API_AUTH_PATH_PATTERN).permitAll()
+
                         .anyRequest().authenticated());
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
+                        
