@@ -1,15 +1,15 @@
 package me.jeongrae.chat.config;
 
 import lombok.RequiredArgsConstructor;
-import me.jeongrae.chat.infrastructure.security.MemberDetailsService;
-import me.jeongrae.chat.infrastructure.security.GuestAuthenticationProvider;
-import me.jeongrae.chat.interfaces.web.GuestAuthenticationFilter;
+import me.jeongrae.chat.infrastructure.security.JwtAuthenticationFilter;
+import me.jeongrae.chat.infrastructure.security.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,47 +20,30 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-        private final MemberDetailsService memberDetailsService;
-        private final GuestAuthenticationProvider guestAuthenticationProvider;
+    private final JwtProvider jwtProvider;
 
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                int saltLenth = 16; // 2^4;
-                int hashLenth = 32; // 2^5;
-                int parallelism = 1;
-                int memory = 65536; // 2^16;
-                int iterations = 10;
-                return new Argon2PasswordEncoder(saltLenth, hashLenth, parallelism, memory,
-                                iterations);
-        }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new Argon2PasswordEncoder(16, 32, 1, 65536, 10);
+    }
 
-        @Bean
-        public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-                AuthenticationManagerBuilder authBuilder =
-                                http.getSharedObject(AuthenticationManagerBuilder.class);
-                authBuilder.userDetailsService(memberDetailsService)
-                                .passwordEncoder(passwordEncoder());
-                authBuilder.authenticationProvider(guestAuthenticationProvider);
-                return authBuilder.build();
-        }
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                        AuthenticationManager authenticationManager) throws Exception {
-                http.csrf(csrf -> csrf.disable())
-                                .authorizeHttpRequests(authz -> authz
-                                                .requestMatchers("/api/register/member",
-                                                                "/api/login/guest", "/login")
-                                                .permitAll().anyRequest().authenticated())
-                                .formLogin(form -> form.loginProcessingUrl("/api/login/member")
-                                                .permitAll())
-                                .logout(logout -> logout.permitAll());
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authz -> authz.requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated());
 
-                GuestAuthenticationFilter guestAuthenticationFilter =
-                                new GuestAuthenticationFilter(authenticationManager);
-                http.addFilterBefore(guestAuthenticationFilter,
-                                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
+                UsernamePasswordAuthenticationFilter.class);
 
-                return http.build();
-        }
+        return http.build();
+    }
 }

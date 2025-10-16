@@ -13,7 +13,10 @@ public enum ChatErrorCode implements DomainErrorCode {
     PASSWORD_TOO_WEAK("비밀번호가 너무 약합니다. 중간 이상의 강도가 필요합니다."),
 
     // Registration Errors
-    USERNAME_OR_NICKNAME_ALREADY_EXISTS("이미 사용 중인 사용자 이름 또는 닉네임입니다.");
+    USERNAME_OR_NICKNAME_ALREADY_EXISTS("이미 사용 중인 사용자 이름 또는 닉네임입니다."),
+
+    // Authentication Errors
+    INVALID_CREDENTIALS("자격 증명이 유효하지 않습니다.");
 
     private final String defaultMessage;
 
