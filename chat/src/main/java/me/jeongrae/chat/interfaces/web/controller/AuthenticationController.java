@@ -1,4 +1,4 @@
-package me.jeongrae.chat.interfaces.web;
+package me.jeongrae.chat.interfaces.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import me.jeongrae.chat.application.GuestLoginCommand;

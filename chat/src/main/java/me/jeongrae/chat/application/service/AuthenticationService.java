@@ -3,6 +3,7 @@ package me.jeongrae.chat.application.service;
 import lombok.RequiredArgsConstructor;
 import me.jeongrae.chat.application.GuestLoginCommand;
 import me.jeongrae.chat.application.MemberLoginCommand;
+import me.jeongrae.chat.application.error.ApplicationErrorCode;
 import me.jeongrae.chat.domain.authn.credential.Password;
 import me.jeongrae.chat.domain.authn.member.Guest;
 import me.jeongrae.chat.domain.authn.member.GuestId;
@@ -11,7 +12,6 @@ import me.jeongrae.chat.domain.authn.policy.PasswordHasher;
 import me.jeongrae.chat.domain.authn.port.GuestIdGenerator;
 import me.jeongrae.chat.domain.authn.repository.GuestRepository;
 import me.jeongrae.chat.domain.authn.repository.MemberRepository;
-import me.jeongrae.chat.domain.shared.error.ChatErrorCode;
 import me.jeongrae.chat.infrastructure.persistence.entity.RefreshToken;
 import me.jeongrae.chat.infrastructure.persistence.repository.RefreshTokenRepository;
 import me.jeongrae.chat.infrastructure.security.JwtProvider;
@@ -39,11 +39,11 @@ public class AuthenticationService {
     @Transactional
     public TokenResponse loginMember(MemberLoginCommand command) {
         Member member = memberRepository.findByUsername(command.username())
-                .orElseThrow(() -> ChatErrorCode.INVALID_CREDENTIALS.ex());
+                .orElseThrow(() -> ApplicationErrorCode.INVALID_LOGIN_CREDENTIALS.ex());
 
         Password password = Password.of(command.password());
         if (!member.authenticate(password, passwordHasher)) {
-            throw ChatErrorCode.INVALID_CREDENTIALS.ex();
+            throw ApplicationErrorCode.INVALID_LOGIN_CREDENTIALS.ex();
         }
 
         String accessToken = jwtProvider.generateAccessToken(member);
