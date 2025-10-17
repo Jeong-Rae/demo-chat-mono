@@ -1,7 +1,79 @@
 # PROJECT_UML.md
 
+## 인증(Authentication) 컨텍스트 UML
+
+아래는 **Member와 Guest 인증/인가를 담당하는 `authn` Bounded Context**의 UML 클래스 다이어그램입니다.
+
+> 표기: `<<AggregateRoot>>`, `<<ValueObject>>`, `<<Interface>>` (Port), `<<Repository>>`
+
+```mermaid
+classDiagram
+direction TB
+
+%% ========= Aggregate Roots =========
+class Member {
+  <<AggregateRoot>>
+  - memberId: MemberId
+  - username: String
+  - nickname: String
+  - hashedPassword: HashedPassword
+  + register(policy, hasher): Member
+  + authenticate(password, hasher): boolean
+}
+
+class Guest {
+  <<AggregateRoot>>
+  - guestId: GuestId
+  - username: String
+  + of(id, username): Guest
+}
+
+%% =============== Value Objects ===============
+class MemberId { <<ValueObject>>; -value: String }
+class GuestId { <<ValueObject>>; -value: String }
+class Password { <<ValueObject>>; -value: String; +strength(): PasswordStrength }
+class HashedPassword { <<ValueObject>>; -value: String }
+
+%% =============== Ports (Interfaces) ===============
+class CredentialPolicy {
+  <<Interface>>
+  + check(username, nickname, password): void
+}
+class PasswordHasher {
+  <<Interface>>
+  + hash(password): HashedPassword
+  + matches(password, hashed): boolean
+}
+class MemberRepository {
+  <<Repository>>
+  + findByUsername(username): Optional~Member~
+  + save(member): Member
+}
+class GuestRepository {
+  <<Repository>>
+  + save(guest): Guest
+}
+
+%% =============== Relationships ===============
+Member "1" --> "1" MemberId : identifies
+Member "1" --> "1" HashedPassword : holds
+Guest "1" --> "1" GuestId : identifies
+
+Member ..> Password : uses
+Member ..> CredentialPolicy : depends on
+Member ..> PasswordHasher : depends on
+
+MemberRepository ..> Member
+GuestRepository ..> Guest
+```
+
+---
+
+## 채팅(Chat) 컨텍스트 UML
+
 아래는 **VO, AGGREGATE, ENTITY가 명확히 구분**된 상태에서 **상호 관계를 도식화한 UML 클래스 다이어그램**입니다.
-(프로토타입: 1:1 채팅, DDD + Hex, 단일 모듈, STOMP/WS, 인증/인가 비활성)
+
+> **Note**: `ChatUser`는 이제 `Member` 또는 `Guest`로 구체화되었습니다. `UserId`는 `MemberId` 또는 `GuestId`를 추상화한 식별자(VO)로 사용됩니다.
 
 > 표기: `<<AggregateRoot>>`, `<<Entity>>`, `<<ValueObject>>`, `<<Repository>>`
 

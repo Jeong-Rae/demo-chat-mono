@@ -1,20 +1,10 @@
-좋습니다, Lyght님.
-요청하신 대로 **프로토타입(실험용) 버전**에 초점을 맞춰,
-**① Client 요청사항**, **② Use Case 명세**, **③ 도메인 언어 체계(용어집)**
-이 세 축으로 명확하게 정의된 `PROJECT_PROTO.md`를 아래에 제시합니다.
-
-ERD/UML은 후속 문서에서 다루기 때문에 이 버전은 **도메인 언어와 행위 정의 중심**으로 구성했습니다.
-
----
 # PROJECT_PROTO.md
 
 ## 1. 프로젝트 개요
 
-본 프로젝트는 실험 단계의 **1:1 채팅 프로토타입 시스템**으로,  
-핵심 도메인 모델과 유즈케이스 구조를 빠르게 검증하기 위한 목적을 가진다.
+본 프로젝트는 **1:1 채팅 시스템**으로, JWT 기반 인증을 도입하고 Member와 Guest 사용자를 명확히 분리하여 도메인 모델의 완성도를 높이는 것을 목표로 한다.
 
-아키텍처는 **DDD + Hexagonal Architecture (Ports & Adapters)** 원칙을 따르며,  
-모든 구성 요소는 단일 모듈 안에서 계층적으로 구분된다.
+아키텍처는 **DDD + Hexagonal Architecture (Ports & Adapters)** 원칙을 따르며, 모든 구성 요소는 단일 모듈 안에서 계층적으로 구분된다.
 
 ---
 
@@ -24,10 +14,10 @@ ERD/UML은 후속 문서에서 다루기 때문에 이 버전은 **도메인 언
 |------|------|
 | **모듈 구조** | 단일 모듈 (monolith) |
 | **아키텍처 패턴** | DDD + Hexagonal Architecture |
-| **통신 프로토콜** | WebSocket (STOMP 프레임 기반) |
-| **인증/인가** | 비활성화, username/password 기반 Guest 연결만 허용 |
+| **통신 프로토콜** | WebSocket (STOMP), HTTP/S (for Auth) |
+| **인증/인가** | JWT 기반 stateless 인증. Member와 Guest 흐름 분리. |
 | **채팅 형태** | 1:1 채팅 (Group Chat 미포함) |
-| **Persistence** | 메모리(In-Memory) 저장소 사용 |
+| **Persistence** | Spring Data JPA / H2 In-Memory DB |
 | **Message Broker** | 미사용 (단일 인스턴스 기준) |
 | **목표** | 도메인 구조, 용어 체계, 유즈케이스 명확화 |
 
@@ -36,48 +26,73 @@ ERD/UML은 후속 문서에서 다루기 때문에 이 버전은 **도메인 언
 ## 3. Client 요청 사항
 
 ### 3.1 기능 요구
-- 사용자는 username/password를 통해 Guest 세션으로 접속한다.
+- **Member**는 `username`, `nickname`, `password`를 사용해 **회원가입**을 할 수 있다.
+- **Member**는 `username`, `password`를 사용해 **로그인**하고, **Access/Refresh Token**을 발급받는다.
+- **Guest**는 `nickname`만으로 **로그인**하여 **Access Token**을 발급받는다.
+- 모든 채팅 API 요청은 유효한 Access Token을 필요로 한다.
 - 접속 후 특정 상대방과 1:1 채팅방을 자동으로 생성하거나 기존 방에 입장한다.
 - 채팅 메시지는 WebSocket을 통해 송수신된다.
-- 서버는 송신자와 수신자 세션만 대상으로 메시지를 전달한다.
-- 연결 종료 시 세션 및 방 정보는 즉시 메모리에서 제거된다.
-- 서버 재기동 시 모든 데이터는 초기화된다.
-- 클라이언트는 단일 서버 인스턴스에만 연결한다.
+- 서버 재기동 시 H2 데이터베이스는 초기화된다.
 
 ### 3.2 비기능 요구
-- 최소한의 리소스로 구동 가능해야 한다. (Local run, no infra dependency)
-- 메시지 전송 지연이 100ms 이하일 것.
+- 인증 로직은 stateless 하게 유지되어야 한다.
+- Member의 비밀번호는 Argon2 알고리즘으로 안전하게 해시되어 저장된다.
 - 외부 인증 시스템 연동 없음.
-- 재연결 시 세션 복원 없이 신규 세션으로 간주.
 
 ---
 
 ## 4. Use Case 명세
 
-### 4.1 UC-01 : 사용자 접속 (Join)
+### 4.1 UC-01 : 회원 가입 (Member Registration)
 **목적**  
-사용자가 WS(STOMP)를 통해 서버에 접속하여 Guest 세션을 생성한다.
+사용자가 시스템에 영구적인 Member 계정을 생성한다.
 
 **흐름**
-1. 클라이언트가 STOMP CONNECT 프레임 전송 (username, password 포함)
-2. 서버는 username/password를 검증 (단순 문자열 매칭 수준)
-3. `ChatUser` 객체를 생성하고 세션과 바인딩
-4. 시스템에 `JOIN` 이벤트 발행 (`/topic/system` 구독자에 알림)
-5. 응답 프레임: “JOIN_SUCCESS” 메시지
+1. 클라이언트가 `POST /api/auth/register/member`로 `username`, `nickname`, `password` 전송
+2. `MemberRegistrationService`가 `CredentialPolicy`를 통해 자격 증명 규칙을 검증한다.
+3. `MemberRepository`를 통해 `username`과 `nickname`의 중복 여부를 확인한다.
+4. `PasswordHasher`를 통해 비밀번호를 해싱하고, 새로운 `Member`를 생성하여 저장한다.
+5. 응답: "회원가입 성공" 메시지
 
 **예외 흐름**
-- username 중복 시 “ALREADY_CONNECTED” 오류 반환
-- password 미일치 시 “AUTH_FAILED” 반환
+- 규칙 위반 시 `400 Bad Request`와 오류 코드 반환
+- `username` 또는 `nickname` 중복 시 `409 Conflict` 반환
 
 ---
 
-### 4.2 UC-02 : 1:1 채팅방 생성 (CreateRoom)
+### 4.2 UC-02 : 회원 로그인 (Member Login)
+**목적**  
+기존 Member가 자신의 신원을 증명하고 서비스 접근 토큰을 발급받는다.
+
+**흐름**
+1. 클라이언트가 `POST /api/auth/login/member`로 `username`, `password` 전송
+2. `AuthenticationService`가 Spring Security를 통해 인증을 수행한다.
+3. 인증 성공 시, **Access Token**과 **Refresh Token**을 생성하여 반환한다.
+4. Refresh Token은 DB에 저장하여 추후 재발급에 사용한다.
+
+**예외 흐름**
+- 자격 증명 불일치 시 `401 Unauthorized` 반환
+
+---
+
+### 4.3 UC-03 : 게스트 로그인 (Guest Login)
+**목적**  
+임시 사용자가 닉네임만으로 시스템에 입장하여 임시 토큰을 발급받는다.
+
+**흐름**
+1. 클라이언트가 `POST /api/auth/login/guest`로 `nickname` 전송
+2. `GuestLoginService`가 새로운 `Guest` 애그리게이트를 생성하고 저장한다.
+3. **Access Token**을 생성하여 반환한다. (Refresh Token 없음)
+
+---
+
+### 4.4 UC-04 : 1:1 채팅방 생성 (CreateRoom)
 **목적**  
 두 사용자의 대화 컨텍스트를 생성하거나 기존 Room을 반환한다.
 
 **흐름**
-1. 사용자가 채팅 요청 시, 서버는 `ChatRoomRegistry`에서 Room 존재 여부 확인
-2. 존재하지 않으면 새로운 `ChatRoom` 생성 (roomId = chat:{u1}:{u2})
+1. 사용자가 채팅 요청 시, 서버는 `ChatRoomRepository`에서 Room 존재 여부 확인
+2. 존재하지 않으면 새로운 `ChatRoom` 생성 (roomId = chat:{u1.id}:{u2.id})
 3. 양쪽 세션에 “ROOM_CREATED” 또는 “ROOM_JOINED” 이벤트 발송
 
 **비즈니스 규칙**
@@ -86,97 +101,36 @@ ERD/UML은 후속 문서에서 다루기 때문에 이 버전은 **도메인 언
 
 ---
 
-### 4.3 UC-03 : 메시지 전송 (SendMessage)
+### 4.5 UC-05 : 메시지 전송 (SendMessage)
 **목적**  
 사용자가 채팅방 내에서 메시지를 전송한다.
 
 **흐름**
-1. 클라이언트 → `/app/chat.send` 프레임 전송
-   ```json
-   { "roomId": "chat:u1:u2", "sender": "u1", "content": "안녕!" }
-````
-
-2. 서버는 `ChatCommandService`를 통해 `ChatMessage` 생성
-3. 도메인 검증 (빈 메시지, 미가입자 전송 등)
-4. `ChatMessage`를 수신자 세션으로 전달
-5. 송신자에게는 Echo 메시지 반환 (확인용)
+1. 클라이언트 → `/app/chat.send` STOMP 프레임 전송
+2. 서버는 `ChatCommandService`를 통해 `ChatMessage` 생성 및 도메인 검증
+3. `ChatMessage`를 수신자 세션으로 전달
 
 **예외 흐름**
-
-* 유효하지 않은 roomId → “ROOM_NOT_FOUND”
-* 송신자가 Room 참가자가 아닐 경우 → “FORBIDDEN”
-
----
-
-### 4.4 UC-04 : 연결 종료 (Leave)
-
-**목적**
-사용자가 연결을 종료하거나 세션이 종료될 때 관련 리소스를 정리한다.
-
-**흐름**
-
-1. STOMP DISCONNECT 이벤트 수신
-2. `SessionRegistry`에서 해당 세션 삭제
-3. 참여 중이던 ChatRoom에서 사용자 제거
-4. 남은 상대방에게 “LEAVE” 알림 전송
-5. 로그에 세션 종료 기록 남김
+- 유효하지 않은 roomId → “ROOM_NOT_FOUND”
+- 송신자가 Room 참가자가 아닐 경우 → “FORBIDDEN”
 
 ---
 
 ## 5. 도메인 언어 체계 (Ubiquitous Language)
 
-| 용어                     | 정의                                | 추가 설명                                                          |
-| ---------------------- | --------------------------------- | -------------------------------------------------------------- |
-| **ChatUser**           | 시스템에 접속한 사용자를 나타내는 객체             | Guest 사용자이며 username으로 식별됨                                     |
-| **ChatRoom**           | 두 명의 사용자가 대화하는 1:1 컨텍스트           | `chat:{userA}:{userB}` 형태의 RoomId로 식별                          |
-| **ChatMessage**        | 사용자 간 주고받는 실제 대화 단위               | `sender`, `content`, `sentAt`을 포함                              |
-| **ChatSession**        | WebSocket 세션과 사용자 간의 연결 상태        | username, sessionId, connected 상태 포함                           |
-| **ChatCommandService** | 유즈케이스 실행을 담당하는 애플리케이션 서비스         | Join, Message, Leave 등                                         |
-| **ChatRoomRegistry**   | 현재 활성화된 Room 목록을 관리               | RoomId 기준으로 Map 형태 저장                                          |
-| **SessionRegistry**    | 현재 연결된 세션과 사용자 매핑 관리              | sessionId → ChatUser                                           |
-| **Join**               | 사용자가 WS에 연결되어 세션을 생성하는 행위         | CONNECT 프레임 수신 시 발생                                            |
-| **Message**            | 채팅 메시지 전송 행위                      | `/app/chat.send` 경로를 통해 수행                                     |
-| **Leave**              | 사용자가 연결을 종료하는 행위                  | DISCONNECT 프레임 수신 시 발생                                         |
-| **Guest**              | 인증되지 않은 임시 사용자                    | username/password로만 식별                                         |
-| **RoomId**             | 두 사용자의 username으로 구성된 방 식별자       | `chat:{min(usernameA, usernameB)}:{max(usernameA, usernameB)}` |
-| **MessageId**          | 개별 메시지의 유니크 ID                    | UUID 기반 생성                                                     |
-| **ChatText**           | 채팅 메시지 본문 VO                      | 빈 문자열 또는 null 금지                                               |
-| **ChatEvent**          | 시스템 내 발생하는 Join/Leave/Message 이벤트 | WS 브로드캐스트에 활용 가능                                               |
+| 용어 | 정의 | 추가 설명 |
+|---|---|---|
+| **Member** | 회원가입을 통해 생성된 영구 사용자 애그리게이트. | `username`, `nickname`, `hashedPassword`를 가짐. |
+| **Guest** | 닉네임으로 식별되는 임시 사용자 애그리게이트. | 임시 Access Token만 발급받음. |
+| **CredentialPolicy** | 자격 증명의 형식과 규칙을 검증하는 도메인 정책. | 비밀번호 강도, 사용자 이름 형식 등을 정의. |
+| **Password** | 비밀번호 원문을 표현하는 값 객체. | `PasswordStrength`를 계산하는 책임을 가짐. |
+| **ChatRoom** | 두 명의 사용자가 대화하는 1:1 컨텍스트. | `chat:{userA.id}:{userB.id}` 형태의 RoomId로 식별. |
+| **ChatMessage** | 사용자 간 주고받는 실제 대화 단위. | `sender`, `content`, `sentAt`을 포함. |
+| **AuthenticationService**| 로그인 유즈케이스를 담당하는 애플리케이션 서비스. | Member/Guest 로그인 흐름을 오케스트레이션. |
+| **MemberRegistrationService**| 회원가입 유즈케이스를 담당하는 애플리케이션 서비스. | |
+| **RoomId** | 두 사용자의 ID로 구성된 방 식별자. | `chat:{min(idA, idB)}:{max(idA, idB)}` |
+| **MemberId / GuestId** | 각 애그리게이트를 식별하는 고유 값 객체. | UUID 기반으로 생성. |
+| **ChatText** | 채팅 메시지 본문 VO. | 빈 문자열 또는 null 금지. |
 
 ---
-
-## 6. 시스템 행위 요약
-
-| 행위              | 주체              | 설명                               |
-| --------------- | --------------- | -------------------------------- |
-| **Connect**     | Client          | username/password로 STOMP CONNECT |
-| **Join 처리**     | Server          | 세션 생성 후 시스템에 JOIN 이벤트 등록         |
-| **Room 생성/조회**  | Server          | RoomId 계산 후 존재 여부 확인 및 생성        |
-| **Message 송신**  | Client → Server | `/app/chat.send` 전송              |
-| **Message 팬아웃** | Server          | 송신자/수신자 세션에게 동일 메시지 전송           |
-| **Disconnect**  | Client / Server | 연결 종료 시 세션 제거 및 LEAVE 이벤트 처리     |
-
----
-
-## 7. 향후 확장 포인트
-
-* **권한 모델 추가**: 인증/인가 서비스 연동, Role 도입
-* **Group Chat 확장**: RoomMembership Entity 추가
-* **메시지 영속화**: Redis Streams 또는 DB 저장
-* **도메인 이벤트 발행**: ChatWireMessage 기반 이벤트 버스 구조 적용
-* **다중 노드 확장**: Redis Pub/Sub 기반 메시지 공유
-
----
-
-*본 문서는 실험 단계 프로토타입의 행위 정의 및 도메인 언어 확립을 목적으로 하며,
-ERD, 클래스 다이어그램, 시퀀스 다이어그램은 별도 설계 문서에서 정의한다.*
-
-```
-
----
-
-이 버전은 실제 개발 프로토타입에서:
-- 개발자가 **동일한 언어로 대화할 수 있는 도메인 공통어**를 확보하고,  
-- **핵심 유즈케이스의 경계를 명확히 정의**하며,  
-- **미래 확장(권한, 메시지버스, ACL)** 으로 쉽게 발전할 수 있는 기반이 됩니다.
-```
+*본 문서는 JWT 인증 기반 시스템의 행위 정의 및 도메인 언어 확립을 목적으로 하며, ERD, 클래스 다이어그램, 시퀀스 다이어그램은 별도 설계 문서에서 정의한다.*
